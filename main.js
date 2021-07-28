@@ -12,6 +12,7 @@ async function getUser(username) {
         const { data } = await axios(APIURL + username)
 
         createUserCard(data)
+        getRepos(username)
 
         // console.log(data)
     } catch (err) {
@@ -30,6 +31,21 @@ async function getUser(username) {
     //     .catch(err=> console.log(err))
 }
 
+
+async function getRepos(user) {
+    try {
+
+        const { data } = await axios(APIURL + user + '/repos?sort=created')
+
+        addReposToCard(data)
+
+        // console.log(data)
+    } catch (err) {
+        createErrorCard('Repositories issue')
+    }
+}
+
+
 function createUserCard(user) {
     const cardHTML = ` 
 <div class="card">
@@ -47,9 +63,7 @@ function createUserCard(user) {
         </ul>
 
         <div id="repos">
-            <a href="#" class="repo">Repo1</a>
-            <a href="#" class="repo">Repo2</a>
-            <a href="#" class="repo">Repo3</a>
+            
         </div>
     </div>
 </div>
@@ -65,6 +79,21 @@ function createErrorCard(message) {
     `
 
     main.innerHTML = cardHTML
+}
+
+function addReposToCard(repos) {
+    const reposEl = document.getElementById('repos')
+    repos
+        .slice(0, 5)
+        .forEach(repo => {
+            const repoEl = document.createElement('a')
+            repoEl.classList.add('repo')
+            repoEl.href = repo.html_url
+            repoEl.target = "_blank"
+            repoEl.innerText = repo.name
+
+            reposEl.appendChild(repoEl)
+        })
 }
 
 form.addEventListener('submit', (e) => {
